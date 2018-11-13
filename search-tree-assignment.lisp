@@ -117,9 +117,9 @@
                  (rationalp (second tree))
 				(if ( and (or (= (third tree) nil) (<< (max (third tree)) (first tree))) 
 						(and (or ( = (fourth tree) nil) (<< (min (fourth tree)) (first tree))
-						;2.6 & 2.7 
-       t   ;;; 1.
-       ))
+						(search-treep (third tree)) (search-treep (fourth tree))  ;2.6 & 2.7 
+        )))))))t) ;;; 1.
+       )
 
 ;;; TODO: More unit tests, at least 5 total
 (check-expect (search-treep '(x 1 nil (z 3 (y 2 nil nil) nil))) t)
@@ -132,13 +132,12 @@
  		 (if (= key (first tree))   ;check if the first value in tree is the key
   		 (cons a '(key (third tree) (fourth tree)))  ;If the first value is the key construct a list [key , value, Third(tree), Fourth(tree)
 				(if (< key (first tree))    ; if key is not = first key, but if key is less than first in tree 
-				  (cons (first tree) '((second tree) (cons a key) (third tree) (fourth tree)))) ;create tree first second (insert key value third fourth)
-					(if(> key (first tree)); if it is on the other side of the tree
-					cons (first tree) '((second tree)  (third tree)(cons a '(key (fourth tree))))  ;create tree first second third (insert key value fourth))
+				  (cons (first tree) '((second tree) (cons a key) (third tree) (fourth tree))) ;create tree first second (insert key value third fourth)
+					;(if(> key (first tree)); if it is on the other side of the tree
+					(cons (first tree) '((second tree)  (third tree)(cons a '(key (fourth tree)))))  ;create tree first second third (insert key value fourth))
 					;third case for if?
-					)
-			)
- (cons key value)) ;Return cons key value if tree is nil	
+					))		
+ (cons key value) ) ;Return cons key value if tree is nil	
   )
 
 ;;; TODO: More unit tests, at least 5 total
@@ -174,97 +173,6 @@
 (check-expect (tree-lookup 'y '(x 1 nil nil)) 0)
 (check-expect (tree-lookup 'y '(x 1 nil (z 3 (y 2 nil nil) nil))) 2)
 
-;;; Before we get to the proofs, we have to extend
-;;; the doublecheck library that defines defproperty. 
-;;; That library has support for random numbers and 
-;;; lists of random numbers, but it doesn't support 
-;;; more complicated objects, like binary search trees
-;;; or even trees in general.
-;;;
-;;; The extensions require deeper knowledge of ACL2 than
-;;; I expect you to get from the brief introduction in
-;;; this class, so I've written the extensions for you.
-;;; You can ignore this code. You're welcome to look through
-;;; it, of course, but you can simply skip until you see 
-;;; the comment "END OF RANDOM TREES". After that, you can
-;;; continue with the little theories and proofs to 
-;;; complete this assignment.
-
-(defun code-char-list (l)
-   (if (consp l)
-       (cons (code-char (first l))
-             (code-char-list (rest l)))
-       nil))
-(check-expect (code-char-list '(65 66 67)) (list #\A #\B #\C))
-
-(set-state-ok t)
-(defun random-symbol-of-length-fn (n state)
-   (mv-let (nums state)
-           (random-between-list-fn 65 90 n state)
-           (mv (intern (coerce (code-char-list nums) 'string) "ACL2") state)))
-(defmacro random-symbol-of-length (n)
-   `(random-symbol-of-length-fn ,n state))
-(defmacro random-symbol ()
-   `(mv-let (ln state)
-            (random-data-size)
-       (random-symbol-of-length-fn ln state)))
-
-(defun random-search-list-of-length-fn (n state)
-   (if (zp n)
-       (mv nil state)
-       (mv-let (l state)
-               (random-search-list-of-length-fn (- n 1) state)
-          (mv-let (keylen state)
-                  (random-data-size)
-             (mv-let (key state)
-                     (random-symbol-of-length-fn keylen state)
-                (mv-let (val state)
-                        (random-natural)
-                   (mv (cons (list key val) l) state)))))))
-
-(defmacro random-search-list-of-length (n)
-   `(random-search-list-of-length-fn ,n state))
-(defmacro random-search-list ()
-   `(mv-let (ln state)
-            (random-data-size)
-       (random-search-list-of-length-fn ln state)))
-
-(in-theory (enable natp-random$ random$-linear mv-nth))
-
-(defun random-natural-tree-of-length-fn (n state)
-   (if (zp n)
-       (mv nil state)
-       (mv-let (n1 state)
-               (random-between 0 (- n 1))
-          (let ((n2 (- n (+ n1 1))))
-               (mv-let (left state)
-                       (random-natural-tree-of-length-fn n1 state)
-                  (mv-let (right state)
-                          (random-natural-tree-of-length-fn n2 state)
-                     (mv-let (keylen state)
-                             (random-data-size)
-                        (mv-let (key state)
-                                (random-symbol-of-length-fn keylen state)
-                           (mv-let (val state)
-                                   (random-natural)
-                              (mv (list key val left right) state))))))))))
-(defmacro random-natural-tree-of-length (n)
-   `(random-natural-tree-of-length-fn ,n state))
-(defmacro random-natural-tree ()
-   `(mv-let (ln state)
-            (random-data-size)
-       (random-natural-tree-of-length-fn ln state)))
-
-(defmacro random-search-tree-of-length (n)
-   `(mv-let (l state)
-            (random-search-list-of-length-fn ,n state)
-       (mv (search-list-to-tree l)
-           state)))
-
-(defmacro random-search-tree ()
-   `(mv-let (ln state)
-            (random-data-size)
-       (random-search-tree-of-length ln)))
 
 ;;; END OF RANDOM TREES
 
