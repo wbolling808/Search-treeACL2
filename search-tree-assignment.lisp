@@ -71,10 +71,10 @@
 
 ;;; TODO: Write more unit tests for tree-max, at least 5 total.
 (check-expect (tree-max '(x 1 nil (z 3 (y 2 nil nil) nil))) 'z)
-(check-expect (tree-max '(x z nil (w 3 (y 2 nil nil) nil))) 'z)
-(check-expect (tree-max '(y 1 nil (3 3 (y 2 z nil) nil))) 'z)
-(check-expect (tree-max '(x 1 nil (2 3 (y 2 nil z) nil))) 'z)
-(check-expect (tree-max '(x 1 nil (5 3 (y 2 nil 26) nil))) '26)
+(check-expect (tree-max '(x z nil (w 3 (y 2 nil nil) nil))) 'y)
+(check-expect (tree-max '(y 1 nil (3 3 (y 2 z nil) nil))) 'y)
+(check-expect (tree-max '(x 1 nil (2 3 (y 2 nil z) nil))) 'y)
+(check-expect (tree-max '(x 1 nil (5 3 (z 2 nil 26) nil))) 'z)
 
 ;;; This function finds the minimum key in a tree
 (defun tree-min (tree)
@@ -95,10 +95,11 @@
 
 ;;; TODO: Write more unit tests for tree-min, at least 5 total.
 (check-expect (tree-min '(x 1 nil (z 3 (y 2 nil nil) nil))) 'x)
-(check-expect (tree-min '(x z nil (w 3 (y 2 nil nil) nil))) 'x)
-(check-expect (tree-min '(y 1 nil (3 3 (y 2 z nil) nil))) 'y)
-(check-expect (tree-min '(1 1 nil (2 3 (y 2 nil z) nil))) '1)
-(check-expect (tree-min '(t 1 nil (5 3 (y 2 nil 26) nil))) 't)
+(check-expect (tree-min '(x z nil (w 3 (y 2 nil nil) nil))) 'w)
+(check-expect (tree-min '(y 1 nil (3 3 (y 2 z nil) nil))) '3)
+(check-expect (tree-min '(a 1 nil (2 3 (y 2 nil z) nil))) '2)
+(check-expect (tree-min '(t 1 nil (5 3 (b 2 nil 26) nil))) '5)
+
 ;;; This function checks whether the tree is a valid search tree
 ;;; The conditions are that:
 ;;;   1.   The tree is NIL, OR
