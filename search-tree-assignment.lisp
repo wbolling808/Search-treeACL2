@@ -131,20 +131,21 @@
 (defun tree-insert (key value tree)
   	(if (consp tree) ;if the tree is not empty
  		 (if (= key (first tree))   ;check if the first value in tree is the key
-  		 (cons a '(key (third tree) (fourth tree)))  ;If the first value is the key construct a list [key , value, Third(tree), Fourth(tree)
+  		 (cons key '(value (third tree) (fourth tree)))  ;If the first value is the key construct a list [key , value, Third(tree), Fourth(tree)
 				(if (< key (first tree))    ; if key is not = first key, but if key is less than first in tree 
-				  (cons (first tree) '((second tree) (cons a key) (third tree) (fourth tree))) ;create tree first second (insert key value third fourth)
+				  (cons (first tree) '((second tree) (cons key '(value (third tree) (fourth tree))))) ;create tree first second (insert key value third fourth)
 					;(if(> key (first tree)); if it is on the other side of the tree
-					(cons (first tree) '((second tree)  (third tree)(cons a '(key (fourth tree)))))  ;create tree first second third (insert key value fourth))
-					;third case for if?
+					(cons (first tree) '((second tree)  (third tree)(cons key '(value (fourth tree)))))  ;create tree first second third (insert key value fourth))
+					
 					))		
- (cons key value) ) ;Return cons key value if tree is nil	
+(cons key value))  ;Return cons key value if tree is nil	
   )
 
 ;;; TODO: More unit tests, at least 5 total
 (check-expect (tree-insert 'x 1 nil) '(x 1 nil nil))
 (check-expect (tree-insert 'z 3 '(x 1 nil nil)) '(x 1 nil (z 3 nil nil)))
 (check-expect (tree-insert 'y 2 '(x 1 nil (z 3 nil nil))) '(x 1 nil (z 3 (y 2 nil nil) nil)))
+
 
 ;;; TODO: Create a tree by inserting the key/value pairs in a list
 ;;; To make life simpler, insert the first key/value pair last into the tree
