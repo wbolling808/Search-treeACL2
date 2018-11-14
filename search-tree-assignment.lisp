@@ -117,8 +117,8 @@
                  (rationalp (second tree))
 				(if ( and (or (= (third tree) nil) (<< (max (third tree)) (first tree))) 
 						(and (or ( = (fourth tree) nil) (<< (min (fourth tree)) (first tree))
-						(search-treep (third tree)) (search-treep (fourth tree))  ;2.6 & 2.7 
-        )))))))t) ;;; 1.
+						(and (search-treep (third tree)) (search-treep (fourth tree))  ;2.6 & 2.7 
+        ))))))))t) ;;; 1.
        )
 
 ;;; TODO: More unit tests, at least 5 total
@@ -186,8 +186,11 @@
 ;;; to the maximum
 (defproperty-program treemin-<<-treemax
    (tree  :value (random-search-tree))
-   ...)
-
+ (if (and (consp tree) (not (= (min tree) (max tree)))
+	 (<< (min tree) (max tree)
+	     f
+	     )
+)
 ;;; TODO: Now convert the little theory above into a theorem
 ;;; with defproperty
 (defproperty treemin-<<-treemax
