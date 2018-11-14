@@ -112,14 +112,16 @@
 ;;;   2.7. The right tree is a valid search tree
 ;;; TODO: Implement this function using the strategy above.
 (defun search-treep (tree)
-   (if  (and (or (consp tree) (= (len tree) 4) (symbolp (first tree)))
+   (if     (and  (consp tree) 
+     (or (= (len tree) 4) (symbolp (first tree)))
                  (rationalp (second tree))   
                 (or (= (third tree) nil) (<< (max (third tree)) (first tree))) 
 				 (or ( = (fourth tree) nil) (<< (min (fourth tree)) (first tree))) 
                 (search-treep (third tree)) 
-                (search-treep (fourth tree))
-					)  t  ))
-
+             	(search-treep (fourth tree)    ))
+   true )
+  false
+  )
 ;;; TODO: More unit tests, at least 5 total
 (check-expect (search-treep '(x 1 nil (z 3 (y 2 nil nil) nil))) t)
 (check-expect (search-treep '(y 1 nil (z 3 (x 2 nil nil) nil))) nil)
