@@ -1,0 +1,192 @@
+;;; Part 0: This programming assignment uses memories, so start by
+;;; copying and pasting your solution to the previous assignment here.
+
+
+;;; END OF CODE FROM SEARCH-TREE ASSIGNMENT
+
+;;; Part 1: Decision trees:
+
+;;; A decision tree is either
+;;;
+;;; * a symbol, e.g, 'versicolor
+;;; * [ varname threshold left-tree right-tree ]
+
+;;; Here is an example decision tree:
+;;; Source: https://www.xoriant.com/blog/product-engineering/decision-trees-machine-learning-algorithm.html
+
+(defconst *IRIS-DECISION-TREE*
+  '(petal-length 245/100
+    setosa
+    (petal-width 175/100
+      (petal-length 495/100
+        (petal-width 165/100
+          versicolor
+          virginica)
+        (petal-width 155/100
+          virginica
+          (sepal-length 695/100
+            versicolor
+            virginica)))
+      (petal-length 485/100
+        (sepal-length 595/100
+          versicolor
+          virginica)
+        virginica))))
+
+;;; TODO: Implement decision-treep
+;;; This should return true if the object is a decision tree and false otherwise.
+;;; Use the definition of decision tree given above.
+;;; Hint: It should be very similar to search-treep from the previous assignment.
+
+(defun decision-treep (tree)
+  ...)
+(check-expect (decision-treep *IRIS-DECISION-TREE*) t)
+
+;;; TODO: Implement decision
+;;; This should evaluate a decision tree, using the description above:
+;;; * if it's a symbol, then that's the value
+;;; * otherwise, lookup the value of varname in the memory, and if it's 
+;;;   less than or equal to the threshold, look for the value in the 
+;;;   left-tree, and if it's greater than the threshold, look for the 
+;;;   value in the right-tree
+
+;;; Remember:
+;;; A decision tree is either
+;;;
+;;; * a symbol, e.g, 'versicolor
+;;; * [ varname threshold left-tree right-tree ]
+
+(defun decision (tree memory)
+  ...)
+
+(check-expect (decision *IRIS-DECISION-TREE* 
+                        (search-list-to-tree '((petal-length 2) 
+                                               (petal-width 2)
+                                               (sepal-length 5)))) 
+              'setosa)
+(check-expect (decision *IRIS-DECISION-TREE* 
+                        (search-list-to-tree '((petal-length 5) 
+                                               (petal-width 2)
+                                               (sepal-length 5)))) 
+              'virginica)
+
+;;; Part 2: Now we're going to reason about decision trees
+
+;;; TODO: Implement set-union
+;;; We are going to reason about the conditions and decisions in
+;;; a decision tree, so we'll get the conditions from the left-tree
+;;; and right-tree and combine them. The right combination is
+;;; "set union", but we don't have an implementation of that.  You
+;;; can build one using these equations:
+;;; * (union NIL L2) = L2
+;;; * (union (cons a L1) L2) = (union L1 L2) if e is a member of L2
+;;; * (union (cons a L1) L2) = (cons a (union L1 L2)) if e is NOT a member of L2
+
+(defun set-union (l1 l2)
+  ...)
+(check-expect (set-union '(a b c) '(d c b)) '(a d c b))
+
+;;; TODO: Implement possible-decisions
+;;; Now find the possible decisions that a decision tree can make.
+;;; This is essentially the same as finding the list of leaves in
+;;; a tree, but remember to use set-union to combine the leaves from
+;;; the left and right subtrees
+(defun possible-decisions (tree)
+  ...)
+(check-expect (possible-decisions *IRIS-DECISION-TREE*) '(setosa versicolor virginica))
+
+;;; There is nothing to do in the following bit. It just defines the
+;;; functions you will need to use defproperty on decision trees
+
+(encapsulate nil
+  (set-state-ok t)
+  (defun random-decision-tree-of-length-fn (n state)
+     (if (zp n)
+         (random-symbol)
+         (mv-let (n1 state)
+                 (random-between 0 (- n 1))
+            (let ((n2 (- n (+ n1 1))))
+                 (mv-let (left state)
+                         (random-decision-tree-of-length-fn n1 state)
+                    (mv-let (right state)
+                            (random-decision-tree-of-length-fn n2 state)
+                       (mv-let (keylen state)
+                               (random-data-size)
+                          (mv-let (key state)
+                                  (random-symbol-of-length-fn keylen state)
+                             (mv-let (val state)
+                                     (random-natural)
+                                (mv (list key val left right) state))))))))))
+  (defmacro random-decision-tree-of-length (n)
+     `(random-decision-tree-of-length-fn ,n state))
+  (defmacro random-decision-tree ()
+     `(mv-let (ln state)
+              (random-data-size)
+         (random-decision-tree-of-length-fn ln state)))
+ )
+
+;;; TODO: Check the little theory that the decision
+;;; made by a decision tree is always one of the tree's
+;;; possible decisions
+(defproperty-program decision-is-one-of-possible-decisions
+  (tree   :value (random-decision-tree)
+   memory :value (random-search-tree))
+  ...)
+
+;;; TODO: Now convert that little theory to a real
+;;; theorem. (ACL2 proves mine automatically, so if
+;;; yours doesn't, it probably means your definitions
+;;; are too complicated.  Help ACL2 by writing simpler
+;;; functions!)
+(defproperty decision-is-one-of-possible-decisions
+  ...)
+
+;;; TODO: Implement possible-properties
+;;; Now find the possible properties that a decision tree looks at.
+;;; The properties are the things that it's checking against a
+;;; threshold.
+(defun possible-properties (tree)
+  ...)
+(check-expect (possible-properties *IRIS-DECISION-TREE*) '(petal-width petal-length sepal-length))
+
+;;; TODO: Implement equiv-memories
+;;; Two memories, m1 and m2, are equivalent if they have the 
+;;; same values for all properties listed in props.
+(defun equiv-memories (m1 m2 props)
+  (if (consp props)
+    (and (equal (tree-lookup (first props) m1)
+                (tree-lookup (first props) m2))
+         (equiv-memories m1 m2 (rest props)))
+    t)
+  )
+(check-expect (equiv-memories (search-list-to-tree '((x 1) (y 2) (z 3)))
+                              (search-list-to-tree '((x 1) (y 2) (z 4)))
+                              '(x y))
+              t)
+(check-expect (equiv-memories (search-list-to-tree '((x 1) (y 2) (z 3)))
+                              (search-list-to-tree '((x 1) (y 2) (z 4)))
+                              '(x z))
+              nil)
+
+;;; TODO: Now test the little theories that if two memories
+;;; are equivalent on the possible properties of a decision tree,
+;;; then the tree will make the same decisions on both memories.
+;;; E.g., if the decision is based only on height and weight, then
+;;; two students with the same height and weight will be classified
+;;; the same way
+(defproperty-program equivalent-decisions
+  (tree    :value (random-decision-tree)
+   memory1 :value (random-search-tree)
+   memory2 :value (random-search-tree))
+  ...)
+
+;;; TODO: Now TRY to convert that little theory to a real
+;;; theorem. It's OK if you fail. I.e., ACL2 does not prove
+;;; this property automatically with my definitions, and I
+;;; doubt it'll work for yours, either. The proof is actually
+;;; quite complicated, even though the idea seems trivial. That's
+;;; not uncommon, I'm afraid. I'll be checking to make sure that
+;;; your proposed theorem is reasonable, but it's fine if ACL2
+;;; can't figure out how to prove it.
+(defproperty equivalent-decisions
+  ...)
