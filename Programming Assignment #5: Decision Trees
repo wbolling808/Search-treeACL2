@@ -385,25 +385,7 @@
           versicolor
           virginica)
         virginica))))
-        
-        (defconst *FOOD-DECISION-TREE*
-  '(hunger-level 245/100
-    setosa
-    (patience-potential 175/100
-      (petal-length 85/100
-        (petal-width 165/100
-          Mcdonalds
-          CookFood)
-        (petal-width 10/100
-          CookFood
-          (sepal-length 100/100
-            McDonalds
-            CookFood)))
-      (petal-length 485/100
-        (sepal-length 595/100
-          McDonalds
-          CookFood)
-        CookFood))))
+     
 
 ;;; TODO: Implement decision-treep
 ;;; This should return true if the object is a decision tree and false otherwise.
