@@ -393,7 +393,6 @@
 ;;; Hint: It should be very similar to search-treep from the previous assignment.
 
 (defun decision-treep (tree)
-(defun search-treep (tree)
    (if (consp tree)
              (if (equal (len tree) 4)
                 (if (symbolp (first tree))
