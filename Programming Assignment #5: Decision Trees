@@ -125,7 +125,7 @@
                        nil)
                     nil)
                  nil)
-       t))                 
+       t))                 ;;Jacob Silva helped me make sure this function is working
 ;;; TODO: More unit tests, at least 5 total
 (check-expect (search-treep '(x 1 nil (z 3 (y 2 nil nil) nil))) t)
 (check-expect (search-treep '(y 1 nil (z 3 (x 2 nil nil) nil))) nil)
@@ -425,8 +425,12 @@
 ;;; * [ varname threshold left-tree right-tree ]
 
 (defun decision (tree memory)
-  (decision-treep tree)
-  (
+  (if (symbolp tree)
+  tree
+  (if (> (second memory) (second tree))
+  (decision (third tree) memory)
+  (decision (fourth tree) memory)
+  nil
   )
 
 (check-expect (decision *IRIS-DECISION-TREE* 
@@ -453,7 +457,7 @@
 ;;; * (union (cons a L1) L2) = (cons a (union L1 L2)) if e is NOT a member of L2
 
 (defun set-union (l1 l2)
-  (Union$ l1 l2)
+  (Union$ l1 l2);;;Union$ is a built in function http://www.cs.utexas.edu/users/moore/acl2/manuals/current/manual/index-seo.php/ACL2____UNION_42
   )
   
 (check-expect (set-union '(a b c) '(d c b)) '(a d c b))
@@ -464,7 +468,7 @@
 ;;; a tree, but remember to use set-union to combine the leaves from
 ;;; the left and right subtrees
 (defun possible-decisions (tree)
-  (set-union (third tree) (fourth tree)
+ (len (set-union (third tree) (fourth tree))) 
   
   )
 (check-expect (possible-decisions *IRIS-DECISION-TREE*) '(setosa versicolor virginica))
