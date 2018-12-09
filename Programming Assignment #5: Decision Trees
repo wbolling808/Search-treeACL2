@@ -467,9 +467,10 @@
 ;;; This is essentially the same as finding the list of leaves in
 ;;; a tree, but remember to use set-union to combine the leaves from
 ;;; the left and right subtrees
-(defun possible-decisions (tree)
- (len (set-union (third tree) (fourth tree))) 
-  
+(if (= (third tree) nill)
+(cons (car (fourth tree)))
+(set-union (third tree) (fourth tree))
+Nil
   )
 (check-expect (possible-decisions *IRIS-DECISION-TREE*) '(setosa versicolor virginica))
 
